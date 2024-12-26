@@ -13,13 +13,13 @@ function vl_cosmetics.register_cosmetic(name, def)
     ["Leg_Left"] = "vl_cosmetics_leg_left.obj",
   }
 
+
   core.register_entity("vl_cosmetics:"..name, {
     visual = "mesh",
-    mesh = models[def.cosmetic_type],
+    mesh = def.mesh or models[def.cosmetic_type],
     textures = def.textures,
-    glow = 14,
+    glow = def.glow,
     cosmetic_type = def.cosmetic_type,
-    pointable = false,
     on_detach = function(self)
       self.object:remove()
     end,
@@ -108,6 +108,13 @@ core.register_chatcommand("vlc_remove", {
 vl_cosmetics.register_cosmetic("glow_eyes", {
   cosmetic_type = "Head",
   textures = {"vl_cosmetics_eyes.png"},
+  glow = 14,
+})
+
+vl_cosmetics.register_cosmetic("mushroom", {
+  cosmetic_type = "Head",
+  mesh = "vl_cosmetics_plantlike_on_head.obj",
+  textures = {"farming_mushroom_red.png"},
 })
 
 --[[
