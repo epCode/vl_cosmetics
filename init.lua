@@ -189,6 +189,23 @@ vl_cosmetics.register_cosmetic("mushroom", {
 })
 
 
+vl_cosmetics.register_cosmetic("brown_beard", {
+  cosmetic_type = "Head",
+  mesh = "vl_cosmetics_beard.obj",
+  textures = {"vl_cosmetics_beard_brown.png"},
+})
+vl_cosmetics.register_cosmetic("red_beard", {
+  cosmetic_type = "Head",
+  mesh = "vl_cosmetics_beard.obj",
+  textures = {"vl_cosmetics_beard_red.png"},
+})
+vl_cosmetics.register_cosmetic("red_mustache", {
+  cosmetic_type = "Head",
+  mesh = "vl_cosmetics_beard.obj",
+  textures = {"vl_cosmetics_mustache_red.png"},
+})
+
+
 
 --[[
 vl_cosmetics.register_cosmetic_collection("fullbody", {
