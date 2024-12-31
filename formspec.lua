@@ -37,18 +37,25 @@ function vl_cosmetics.show_cozform(name, selected_tab)
 
       local xpos = (vl_cosmetics.scroll[name]+inter*4)
 
+      local button = ""
+
       if vl_cosmetics.has_coz(minetest.get_player_by_name(name), cozname) then
         models = models..
         "image["..(xpos+0.9)..",1.8;2.2,1;vlc_button_blank.png]"..
         "label["..(xpos+1.1)..",2.1;You already\nhave this one.]"
+        button = ""..
+        "image_button["..(xpos+0.75)..",2.899;2.5,5;vlc_model_border_selected.png;remove_"..cozname..";;;;vlc_model_border_p.png]"
       else
-        models = models..""
+        button = ""..
+        "image_button["..(xpos+0.75)..",2.899;2.5,5;vlc_model_border.png;select_"..cozname..";;;;vlc_model_border_p.png]"
       end
       -- models
 
 
+
       models = models..
-      "image["..(xpos+0.75)..",2.899;2.5,5;vlc_model_border.png]"..
+      "style_type[image_button;bgimg=vlc_model_border.png;bgimg_pressed=vlc_model_border.png;border=false]"..
+      button..
       "image["..(xpos+0.9)..",3;2.2,1;vlc_button_blank.png]"..
       "label["..(xpos+1.1)..",3.5;"..cozname.."]"..
       "model["..xpos..",4;4,4;"..cozname..";"..def.mesh..";"..table.concat(textures, ",")..";-20,39;false;true]"
@@ -105,6 +112,14 @@ core.register_on_player_receive_fields(function(player, formname, fields)
     if string.find(fieldname, "tabs_") then
       active_tab = fieldname:gsub("tabs_", "")
       vl_cosmetics.scroll[name] = nil
+      change = true
+      break
+    elseif string.find(fieldname, "select_") then
+      vl_cosmetics.equip_coz(player, fieldname:gsub("select_", ""))
+      change = true
+      break
+    elseif string.find(fieldname, "remove_") then
+      vl_cosmetics.remove_coz(player, fieldname:gsub("remove_", ""), false)
       change = true
       break
     end
