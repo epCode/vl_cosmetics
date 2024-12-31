@@ -1,11 +1,17 @@
 vl_cosmetics = {
-  coznames = {},
-  coz_collections = {},
+  registered_cosmetics = {},
+  registered_collections = {},
   scroll = {},
   active_tab = {}
 }
 
 function vl_cosmetics.register_cosmetic(name, def)
+
+  def.usename = name
+
+  name = name:gsub(" ", "_")
+  name = name:gsub("#", "")
+
   local models = {
     ["head"] = "vl_cosmetics_head.obj",
     ["body"] = "vl_cosmetics_body.obj",
@@ -24,8 +30,7 @@ function vl_cosmetics.register_cosmetic(name, def)
     ["leg_left"] = "Leg_Left"
   }
 
-
-  core.register_entity("vl_cosmetics:"..name, {
+  local final_def = {
     visual = "mesh",
     mesh = def.mesh or models[def.cosmetic_type],
     textures = {"blank.png", def.textures[1], def.textures[2]},
@@ -33,6 +38,8 @@ function vl_cosmetics.register_cosmetic(name, def)
     cosmetic_type = def.cosmetic_type,
     cosmetic_type_cap = cap[def.cosmetic_type],
     pointable = false,
+    do_not_list = def.do_not_list,
+    usename = def.usename,
     on_detach = function(self)
       self.object:remove()
     end,
@@ -43,13 +50,15 @@ function vl_cosmetics.register_cosmetic(name, def)
         end
       end)
     end
-  })
+  }
 
-  vl_cosmetics.coznames[name] = def.cosmetic_type
+  core.register_entity("vl_cosmetics:"..name, final_def)
+
+  vl_cosmetics.registered_cosmetics[name] = final_def
 end
 
 function vl_cosmetics.register_cosmetic_collection(name, def)
-  vl_cosmetics.coz_collections[name] = def
+  vl_cosmetics.registered_collections[name] = def
 end
 
 
@@ -83,15 +92,15 @@ function vl_cosmetics.equip_coz(player, cozname)
 end
 
 function vl_cosmetics.add_cosmetic(player, cozname)
-  if vl_cosmetics.coznames[cozname] then
-    core.chat_send_player(player:get_player_name(), vl_cosmetics.equip_coz(player, cozname))
+  if vl_cosmetics.registered_cosmetics[cozname] then
+    --core.chat_send_player(player:get_player_name(), vl_cosmetics.equip_coz(player, cozname))
     return
-  elseif vl_cosmetics.coz_collections[cozname] then
-    for _,cozlistname in pairs(vl_cosmetics.coz_collections[cozname]) do
+  elseif vl_cosmetics.registered_collections[cozname] then
+    for _,cozlistname in pairs(vl_cosmetics.registered_collections[cozname]) do
       vl_cosmetics.equip_coz(player, cozlistname)
     end
   else
-    core.chat_send_player(player:get_player_name(), "That is not the name of any cosmetic!")
+    --core.chat_send_player(player:get_player_name(), "That is not the name of any cosmetic!")
     return
   end
 end
@@ -109,25 +118,25 @@ function vl_cosmetics.remove_coz(player, cozname, all)
         obj:remove()
       end
     end
-    core.chat_send_player(name, "All cosmetics removed!")
+    --core.chat_send_player(name, "All cosmetics removed!")
   else
     for _,obj in pairs(children) do
       if not obj:is_player() and obj:get_luaentity() then
         local luaname = obj:get_luaentity().name
-        if vl_cosmetics.coz_collections[cozname] then
+        if vl_cosmetics.registered_collections[cozname] then
           print(luaname)
           -- if a cosmetic happens to have the same name as a collection, it will silently fail to remove.
-          for _,cozlistname in pairs(vl_cosmetics.coz_collections[cozname]) do
+          for _,cozlistname in pairs(vl_cosmetics.registered_collections[cozname]) do
             if luaname == "vl_cosmetics:"..cozlistname then
               obj:remove()
               local_player_coz[cozname] = nil
-              core.chat_send_player(name, cozlistname.." removed!")
+              --core.chat_send_player(name, cozlistname.." removed!")
             end
           end
         elseif luaname == "vl_cosmetics:"..cozname then
           obj:remove()
           local_player_coz[cozname] = nil
-          core.chat_send_player(name, cozname.." removed!")
+          --core.chat_send_player(name, cozname.." removed!")
         end
       end
     end
@@ -143,7 +152,7 @@ core.register_chatcommand("vlc", {
 	func = function(name, param)
 		if(param == "") then
 			-- Selfkill
-      core.chat_send_player(name, "No cosmetic specified")
+      --core.chat_send_player(name, "No cosmetic specified")
 			return
 		else
 			return vl_cosmetics.add_cosmetic(core.get_player_by_name(name), param)
@@ -207,102 +216,5 @@ core.register_chatcommand("vlc_on_head", {
 
 
 
-
-
--- Misc
-vl_cosmetics.register_cosmetic("GlowEyes", {
-  cosmetic_type = "head",
-  textures = {"vl_cosmetics_eyes.png"},
-  glow = 14,
-})
-vl_cosmetics.register_cosmetic("Mushroom", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_plantlike_on_head.obj",
-  textures = {"farming_mushroom_red.png"},
-})
-
--- Hair --
---facial hair
-vl_cosmetics.register_cosmetic("BrownBeard", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_beard.obj",
-  textures = {"vl_cosmetics_beard_brown.png"},
-})
-vl_cosmetics.register_cosmetic("RedBeard", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_beard.obj",
-  textures = {"vl_cosmetics_beard_red.png"},
-})
-vl_cosmetics.register_cosmetic("RedMustache", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_beard.obj",
-  textures = {"vl_cosmetics_mustache_red.png"},
-})
-
---head hair
-vl_cosmetics.register_cosmetic("ElfHelmet", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_head_extruded.obj",
-  textures = {"vl_cosmetics_elf_helmet.png"},
-})
-
-
-vl_cosmetics.register_cosmetic("beh_H", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_head_slightly_extruded.obj",
-  textures = {"vl_cosmetics_brown_elf_hair.png"},
-  list = false,
-})
-vl_cosmetics.register_cosmetic("beh_B", {
-  cosmetic_type = "body",
-  textures = {"vl_cosmetics_brown_elf_hair.png"},
-  list = false,
-})
--- ps. Keys in this collection are only code documentation purposes,
--- no actual hardcoded function. eg Head = "beh_H" is just using "beh_H"
-vl_cosmetics.register_cosmetic_collection("BrownElfHair", {
-  Head = "beh_H",
-  Body = "beh_B",
-})
-
-vl_cosmetics.register_cosmetic("beh2_H", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_head_slightly_extruded.obj",
-  textures = {"vl_cosmetics_brown_elf_hair_2.png"},
-  list = false,
-})
-vl_cosmetics.register_cosmetic("beh2_B", {
-  cosmetic_type = "body",
-  textures = {"vl_cosmetics_brown_elf_hair_2.png"},
-  list = false,
-})
-vl_cosmetics.register_cosmetic_collection("BrownElfHair2", {
-  Head = "beh2_H",
-  Body = "beh2_B",
-})
-
-vl_cosmetics.register_cosmetic("reh_H", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_head_slightly_extruded.obj",
-  textures = {"vl_cosmetics_red_elf_hair.png"},
-  list = false,
-})
-vl_cosmetics.register_cosmetic("reh_B", {
-  cosmetic_type = "body",
-  textures = {"vl_cosmetics_red_elf_hair.png"},
-  list = false,
-})
-vl_cosmetics.register_cosmetic_collection("RedElfHair", {
-  Head = "reh_H",
-  Body = "reh_B",
-})
-
--- Body Parts --
-vl_cosmetics.register_cosmetic("ElfEars", {
-  cosmetic_type = "head",
-  mesh = "vl_cosmetics_head_slightly_extruded.obj",
-  textures = {"vl_cosmetics_elf_ears_1.png"},
-})
-
-
+dofile(core.get_modpath("vl_cosmetics").."/register.lua")
 dofile(core.get_modpath("vl_cosmetics").."/formspec.lua")
