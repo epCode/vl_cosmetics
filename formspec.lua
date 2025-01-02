@@ -1,3 +1,5 @@
+--vl_cosmetics = {}
+
 -- Custom tabheader type function
 local function tabheader(x, y, w, h, space, tabnames, button_image, button_depressed, button_selected, selected_tab)
   local listadd =
@@ -33,8 +35,6 @@ function vl_cosmetics.show_cozform(name, selected_tab)
     local coztype = def.cosmetic_type
 
     if selected_tab == coztype and not def.do_not_list then
-
-      local def = vl_cosmetics.registered_cosmetics[cozname]
 
       local textures = table.copy(def.textures)
       textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png

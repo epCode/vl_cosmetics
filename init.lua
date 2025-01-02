@@ -1,3 +1,4 @@
+
 vl_cosmetics = {
   registered_cosmetics = {},
   registered_collections = {},
@@ -36,7 +37,7 @@ function vl_cosmetics.register_cosmetic(name, def)
     textures = {"blank.png", def.textures[1], def.textures[2]},
     glow = def.glow,
     cosmetic_type = def.cosmetic_type,
-    cosmetic_type_cap = cap[def.cosmetic_type],
+    cosmetic_type_cap = cap[def.cosmetic_type] or "",
     pointable = false,
     do_not_list = def.do_not_list,
     usename = def.usename,
@@ -61,8 +62,18 @@ function vl_cosmetics.register_cosmetic_collection(name, def)
   vl_cosmetics.registered_collections[name] = def
 end
 
-
 local function force_equip_coz(player, cozname)
+  if not vl_cosmetics.registered_cosmetics[cozname] then
+    core.log("warning", "Cosmetic: "..cozname.." nonexistent, removing from player "..player:get_player_name().."...")
+
+    local meta = player:get_meta()
+    local local_player_coz = core.deserialize(meta:get_string("vl_cosmetics")) or {}
+    local_player_coz[cozname] = nil
+    meta:set_string("vl_cosmetics", core.serialize(local_player_coz))
+
+
+    return
+  end
   local coz = core.add_entity(player:get_pos(), "vl_cosmetics:"..cozname)
   coz:set_attach(player, coz:get_luaentity().cosmetic_type_cap, vector.new(0,0,0), vector.new(0,0,0))
 end
@@ -145,6 +156,7 @@ function vl_cosmetics.remove_coz(player, cozname, all)
   meta:set_string("vl_cosmetics", core.serialize(local_player_coz))
 end
 
+
 core.register_chatcommand("vlc", {
 	params = "[<cosmetic_name>]",
 	description = "Add a cosmetic to yourself",
@@ -173,8 +185,6 @@ core.register_chatcommand("vlc_remove", {
     end
 	end,
 })
-
-
 
 
 core.register_on_joinplayer(function(player)
@@ -216,5 +226,5 @@ core.register_chatcommand("vlc_on_head", {
 
 
 
-dofile(core.get_modpath("vl_cosmetics").."/register.lua")
-dofile(core.get_modpath("vl_cosmetics").."/formspec.lua")
+--dofile(core.get_modpath("vl_cosmetics").."/register.lua")
+--dofile(core.get_modpath("vl_cosmetics").."/formspec.lua")
