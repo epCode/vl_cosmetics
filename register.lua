@@ -125,7 +125,7 @@ vl_cosmetics.register_cosmetic("ElfLegLeft", {
   do_not_list = true,
   textures = {"vl_cosmetics_test.png"},
 })
-
+--[[
 vl_cosmetics.register_cosmetic_collection("Elf", {
   Head = "ElfHead",
   Body = "ElfBody",
@@ -133,7 +133,7 @@ vl_cosmetics.register_cosmetic_collection("Elf", {
   Arm_Left = "ElfArmLeft",
   Leg_Right = "ElfLegRight",
   Leg_Left = "ElfLegLeft",
-})
+})]]
 
 
 vl_cosmetics.register_cosmetic("AnimTest", {
@@ -142,6 +142,7 @@ vl_cosmetics.register_cosmetic("AnimTest", {
     "vlc_anim_test.png^[verticalframe:2:1",
   },
   glow = 14,
+  do_not_list = true,
   on_step = function(self, dtime)
     self._timer = self._timer + dtime
 
