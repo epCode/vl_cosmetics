@@ -6,6 +6,17 @@ vl_cosmetics = {
   active_tab = {}
 }
 
+--[[
+function vl_cosmetics.preview_model_version(def, replacement_tex)
+  local textures = {replacement_tex, def.textures[1], def.textures[2]}
+
+  if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
+    textures = {[1] = def.textures[1], [2] = replacement_tex}
+  end
+  return textures
+end]]
+
+
 function vl_cosmetics.register_cosmetic(name, def)
 
   def.usename = name
@@ -31,10 +42,16 @@ function vl_cosmetics.register_cosmetic(name, def)
     ["leg_left"] = "Leg_Left"
   }
 
+  local textures = {"blank.png", def.textures[1], def.textures[2]}
+
+  if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
+    textures = {[1] = def.textures[1], [2] = "blank.png"}
+  end
+
   local final_def = {
     visual = "mesh",
     mesh = def.mesh or models[def.cosmetic_type],
-    textures = {"blank.png", def.textures[1], def.textures[2]},
+    textures = textures,
     glow = def.glow,
     cosmetic_type = def.cosmetic_type,
     cosmetic_type_cap = cap[def.cosmetic_type] or "",

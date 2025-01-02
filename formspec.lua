@@ -39,6 +39,11 @@ function vl_cosmetics.show_cozform(name, selected_tab)
       local textures = table.copy(def.textures)
       textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
 
+      if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
+        textures = table.copy(def.textures)
+        textures[2] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+      end
+
 
       local xpos = (vl_cosmetics.scroll[name]+inter*4)
 
@@ -89,6 +94,11 @@ function vl_cosmetics.show_cozform(name, selected_tab)
 
         local textures = table.copy(def.textures)
         textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+
+        if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
+          textures = table.copy(def.textures)
+          textures[2] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+        end
 
         local button = ""
 

@@ -92,3 +92,45 @@ vl_cosmetics.register_cosmetic("Elf Ears", {
   mesh = "vl_cosmetics_head_slightly_extruded.obj",
   textures = {"vl_cosmetics_elf_ears_1.png"},
 })
+
+
+--Test
+vl_cosmetics.register_cosmetic("ElfHead", {
+  cosmetic_type = "head",
+  do_not_list = true,
+  textures = {"vl_cosmetics_test.png"},
+})
+vl_cosmetics.register_cosmetic("ElfBody", {
+  cosmetic_type = "body",
+  do_not_list = true,
+  textures = {"vl_cosmetics_test.png"},
+})
+vl_cosmetics.register_cosmetic("ElfArmRight", {
+  cosmetic_type = "arm_right",
+  do_not_list = true,
+  textures = {"vl_cosmetics_test.png"},
+})
+vl_cosmetics.register_cosmetic("ElfArmLeft", {
+  cosmetic_type = "arm_left",
+  --do_not_list = false,
+  textures = {"vl_cosmetics_test.png"},
+})
+vl_cosmetics.register_cosmetic("ElfLegRight", {
+  cosmetic_type = "leg_left",
+  do_not_list = true,
+  textures = {"vl_cosmetics_test.png"},
+})
+vl_cosmetics.register_cosmetic("ElfLegLeft", {
+  cosmetic_type = "leg_right",
+  do_not_list = true,
+  textures = {"vl_cosmetics_test.png"},
+})
+
+vl_cosmetics.register_cosmetic_collection("Elf", {
+  Head = "ElfHead",
+  Body = "ElfBody",
+  Arm_Right = "ElfArmRight",
+  Arm_Left = "ElfArmLeft",
+  Leg_Right = "ElfLegRight",
+  Leg_Left = "ElfLegLeft",
+})
