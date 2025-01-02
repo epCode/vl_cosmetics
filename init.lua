@@ -226,5 +226,5 @@ core.register_chatcommand("vlc_on_head", {
 
 
 
---dofile(core.get_modpath("vl_cosmetics").."/register.lua")
---dofile(core.get_modpath("vl_cosmetics").."/formspec.lua")
+dofile(core.get_modpath("vl_cosmetics").."/register.lua")
+dofile(core.get_modpath("vl_cosmetics").."/formspec.lua")
