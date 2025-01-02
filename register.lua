@@ -112,7 +112,7 @@ vl_cosmetics.register_cosmetic("ElfArmRight", {
 })
 vl_cosmetics.register_cosmetic("ElfArmLeft", {
   cosmetic_type = "arm_left",
-  --do_not_list = false,
+  do_not_list = true,
   textures = {"vl_cosmetics_test.png"},
 })
 vl_cosmetics.register_cosmetic("ElfLegRight", {
@@ -133,4 +133,24 @@ vl_cosmetics.register_cosmetic_collection("Elf", {
   Arm_Left = "ElfArmLeft",
   Leg_Right = "ElfLegRight",
   Leg_Left = "ElfLegLeft",
+})
+
+
+vl_cosmetics.register_cosmetic("AnimTest", {
+  cosmetic_type = "head",
+  textures = {
+    "vlc_anim_test.png^[verticalframe:2:1",
+  },
+  glow = 14,
+  on_step = function(self, dtime)
+    self._timer = self._timer + dtime
+
+    if self._timer > 0.3 then
+      self._timer = 0
+      local tex = self.object:get_properties().textures
+      tex[2] = "vlc_anim_test.png^[verticalframe:30:"..(math.random(30)-1)
+
+      self.object:set_properties({textures = tex})
+    end
+  end
 })

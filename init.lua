@@ -58,6 +58,8 @@ function vl_cosmetics.register_cosmetic(name, def)
     pointable = false,
     do_not_list = def.do_not_list,
     usename = def.usename,
+    on_step = def.on_step,
+    _timer = 0,
     on_detach = function(self)
       self.object:remove()
     end,
