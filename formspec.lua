@@ -36,13 +36,18 @@ function vl_cosmetics.show_cozform(name, selected_tab)
 
     if selected_tab == coztype and not def.do_not_list then
 
-      local textures = table.copy(def.textures)
-      textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+      local display_textures = table.copy(def.textures)
 
-      if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
-        textures = table.copy(def.textures)
-        textures[2] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+      if def.texture_animation then
+        display_textures[def.texture_animation.index] = display_textures[def.texture_animation.index].."^[verticalframe:"..def.texture_animation.frame_count..":"..(def.texture_animation.display_index or 0)
       end
+
+      local textures = table.copy(display_textures)
+
+      local additions = ""
+
+
+
 
 
       local xpos = (vl_cosmetics.scroll[name]+inter*4)
@@ -62,13 +67,33 @@ function vl_cosmetics.show_cozform(name, selected_tab)
       -- models
 
 
+      if def.value_slider then
+        for ind,texture in pairs(textures) do
+          textures[ind] = texture.."^[hsl:0:0:"..(vl_cosmetics.get_coz_settings(minetest.get_player_by_name(name), cozname, 100)-100)*-1
+        end
+        additions = additions..
+        "scrollbaroptions[min=0;max=200;thumbsize=10;arrows=hide]"..
+        "scrollbar["..(xpos+0.5)..",4;0.3,4;vertical;value_"..cozname..";"..vl_cosmetics.get_coz_settings(minetest.get_player_by_name(name), cozname, 100).."]"
+      end
+
+
+
+      textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+
+      if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
+        textures = table.copy(display_textures)
+        textures[2] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
+      end
+
 
       models = models..
       "style_type[image_button;bgimg=vlc_model_border.png;bgimg_pressed=vlc_model_border.png;border=false]"..
       button..
       "image["..(xpos+0.9)..",3;2.2,1;vlc_button_blank.png]"..
       "label["..(xpos+1.1)..",3.5;"..def.usename.."]"..
-      "model["..xpos..",4;4,4;"..cozname..";"..def.mesh..";"..table.concat(textures, ",")..";-20,39;false;true]"
+      "model["..xpos..",4;4,4;"..cozname..";"..def.mesh..";"..table.concat(textures, ",")..";-20,39;false;true]"..
+      additions
+      --"scroll_container["..xpos..",4;1,4;scroll;vertical;0;0]"
 
       inter = inter + 1
     end
@@ -92,11 +117,14 @@ function vl_cosmetics.show_cozform(name, selected_tab)
       for ind,cozname in pairs(def) do -- find out which models to display for collections
         local def = vl_cosmetics.registered_cosmetics[cozname]
 
-        local textures = table.copy(def.textures)
+        local display_textures = def.textures
+
+
+        local textures = table.copy(display_textures)
         textures[1] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
 
         if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
-          textures = table.copy(def.textures)
+          textures = table.copy(display_textures)
           textures[2] = "vl_cosmetics_character.png" -- add preview texture where normally blank.png
         end
 
@@ -152,7 +180,7 @@ end
 core.register_on_player_receive_fields(function(player, formname, fields)
   if formname ~= "vlc:main" then return end
 
-  local change
+  local change, change_model
 
   local name = player:get_player_name()
 
@@ -169,8 +197,22 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 
 
+
+
+
   local active_tab = vl_cosmetics.active_tab[name] or "head"
   for fieldname,fieldvalue in pairs(fields) do
+
+
+    if string.find(fieldname, "value_") then
+      if string.find(fieldvalue, "CHG:") then
+        vl_cosmetics.coz_set_setting(player, fieldname:gsub("value_", ""), fieldvalue:gsub("CHG:", ""))
+        change = true
+        change_model = fieldname:gsub("value_", "")
+      end
+    end
+
+
     if string.find(fieldname, "tabs_") then
       active_tab = fieldname:gsub("tabs_", "")
       vl_cosmetics.scroll[name] = nil
@@ -209,6 +251,10 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
   if change then
     vl_cosmetics.show_cozform(player:get_player_name(), vl_cosmetics.active_tab[name])
+  end
+  if change_model then
+    vl_cosmetics.remove_coz(player, change_model)
+    vl_cosmetics.equip_coz(player, change_model)
   end
 end)
 

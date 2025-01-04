@@ -17,6 +17,8 @@ function vl_cosmetics.preview_model_version(def, replacement_tex)
 end]]
 
 
+
+
 function vl_cosmetics.register_cosmetic(name, def)
 
   def.usename = name
@@ -42,6 +44,8 @@ function vl_cosmetics.register_cosmetic(name, def)
     ["leg_left"] = "Leg_Left"
   }
 
+
+
   local textures = {"blank.png", def.textures[1], def.textures[2]}
 
   if string.find(def.cosmetic_type, "leg") or string.find(def.cosmetic_type, "arm") then
@@ -58,7 +62,51 @@ function vl_cosmetics.register_cosmetic(name, def)
     pointable = false,
     do_not_list = def.do_not_list,
     usename = def.usename,
-    on_step = def.on_step,
+    texture_modifiers = "",
+    value_slider = def.value_slider,
+    _on_step = def.on_step,
+    _frame = 0,
+    texture_animation = def.texture_animation,
+    on_step = function(self, dtime, moveresult)
+
+      if self.texture_animation then
+        self._timer = self._timer + dtime
+
+        if self._timer > (self.texture_animation.delay or 0.5) then
+          self._timer = 0
+          local tex = self.object:get_properties().textures
+          local texindex = self.texture_animation.index or 2
+          local end_of_filename = string.find(tex[texindex], ".png")+3
+
+
+
+
+          if self.texture_animation.random then
+            self._frame = (math.random(self.texture_animation.frame_count)-1)
+          else
+            self._frame = self._frame + 1
+
+            if self._frame > self.texture_animation.frame_count then
+              self._frame = 0
+              if self.texture_animation.pause and #self.texture_animation.pause then
+                self._timer = -math.random(self.texture_animation.pause[1], self.texture_animation.pause[2])
+              elseif self.texture_animation.pause then
+                self._timer = -self.texture_animation.pause
+              end
+            end
+          end
+
+          tex[texindex] = string.sub(tex[texindex], 1, end_of_filename)..self.texture_modifiers.."^[verticalframe:"..self.texture_animation.frame_count..":"..self._frame
+
+          self.object:set_properties({textures = tex})
+        end
+      end
+
+      if self._on_step then
+        self._on_step(self, dtime, moveresult)
+      end
+
+    end,
     _timer = 0,
     on_detach = function(self)
       self.object:remove()
@@ -67,8 +115,20 @@ function vl_cosmetics.register_cosmetic(name, def)
       core.after(0.05, function()
         if self and self.object:get_pos() and not self.object:get_attach() then
           self.object:remove()
+        else
+          if self.value_slider then
+            local textures = {}
+            for ind,texture in pairs(self.object:get_properties().textures) do
+              print((vl_cosmetics.get_coz_settings(self.object:get_attach(), self.name:gsub("vl_cosmetics:", ""), 100)-100)*-1)
+              textures[ind] = texture.."^[hsl:0:0:"..(vl_cosmetics.get_coz_settings(self.object:get_attach(), self.name:gsub("vl_cosmetics:", ""), 100)-100)*-1
+            end
+            self.object:set_properties({textures = textures})
+          end
         end
+
       end)
+
+
     end
   }
 
@@ -81,7 +141,8 @@ function vl_cosmetics.register_cosmetic_collection(name, def)
   vl_cosmetics.registered_collections[name] = def
 end
 
-local function force_equip_coz(player, cozname)
+
+local function force_equip_coz(player, cozname, texture_modifiers)
   if not vl_cosmetics.registered_cosmetics[cozname] then
     core.log("warning", "Cosmetic: "..cozname.." nonexistent, removing from player "..player:get_player_name().."...")
 
@@ -93,7 +154,12 @@ local function force_equip_coz(player, cozname)
 
     return
   end
+
+
   local coz = core.add_entity(player:get_pos(), "vl_cosmetics:"..cozname)
+  if texture_modifiers then
+    coz:get_luaentity().texture_modifiers = texture_modifiers
+  end
   coz:set_attach(player, coz:get_luaentity().cosmetic_type_cap, vector.new(0,0,0), vector.new(0,0,0))
 end
 
@@ -105,24 +171,60 @@ function vl_cosmetics.has_coz(player, cozname)
   if local_player_coz[cozname] then return true end
 end
 
+function vl_cosmetics.get_coz_settings(player, cozname, default)
+  local meta = player:get_meta()
+  local local_player_coz_settings = core.deserialize(meta:get_string("vl_cosmetics_settings")) or {}
+
+  if not local_player_coz_settings[cozname] then
+    local_player_coz_settings[cozname] = default
+  end
+
+  meta:set_string("vl_cosmetics_settings", core.serialize(local_player_coz_settings))
+  return local_player_coz_settings[cozname]
+end
+
+function vl_cosmetics.coz_set_setting(player, cozname, value)
+  local meta = player:get_meta()
+  local local_player_coz_settings = core.deserialize(meta:get_string("vl_cosmetics_settings")) or {}
+
+  local_player_coz_settings[cozname] = value
+
+  meta:set_string("vl_cosmetics_settings", core.serialize(local_player_coz_settings))
+  return local_player_coz_settings[cozname]
+end
+
 
 function vl_cosmetics.equip_coz(player, cozname)
+
+  local def = vl_cosmetics.registered_cosmetics[cozname]
   local meta = player:get_meta()
   local local_player_coz = core.deserialize(meta:get_string("vl_cosmetics")) or {}
 
   if local_player_coz[cozname] then return "You already have that one!" end
 
+  local texture_modifiers = ""
+
+  if def.value_slider then
+    for ind,texture in pairs(def.textures) do
+      texture_modifiers = "^[hsl:0:0:"..(vl_cosmetics.get_coz_settings(player, cozname, 100)-100)*-1
+    end
+  end
+
+
   local_player_coz[cozname] = true
 
   meta:set_string("vl_cosmetics", core.serialize(local_player_coz))
 
-  force_equip_coz(player, cozname)
+  force_equip_coz(player, cozname, texture_modifiers)
 
   return "Cosmetic added: '"..cozname.."'"
 end
 
 function vl_cosmetics.add_cosmetic(player, cozname)
-  if vl_cosmetics.registered_cosmetics[cozname] then
+
+  local def = vl_cosmetics.registered_cosmetics[cozname]
+
+  if def then
     --core.chat_send_player(player:get_player_name(), vl_cosmetics.equip_coz(player, cozname))
     return
   elseif vl_cosmetics.registered_collections[cozname] then
@@ -135,9 +237,17 @@ function vl_cosmetics.add_cosmetic(player, cozname)
   end
 end
 
-function vl_cosmetics.remove_coz(player, cozname, all)
+function vl_cosmetics.remove_coz(player, cozname, all, just_meta)
   local meta = player:get_meta()
   local local_player_coz = core.deserialize(meta:get_string("vl_cosmetics")) or {}
+
+  if just_meta then
+    local_player_coz[cozname] = nil
+    meta:set_string("vl_cosmetics", core.serialize(local_player_coz))
+    return
+  end
+
+
 
   local name = player:get_player_name()
   local children = player:get_children()
@@ -210,7 +320,8 @@ core.register_on_joinplayer(function(player)
   local meta = player:get_meta()
   local local_player_coz = core.deserialize(meta:get_string("vl_cosmetics")) or {}
   for coz,value in pairs(local_player_coz) do
-    force_equip_coz(player, coz)
+    vl_cosmetics.remove_coz(player, coz, false, true)
+    vl_cosmetics.equip_coz(player, coz)
   end
 end)
 
