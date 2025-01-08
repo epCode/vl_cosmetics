@@ -173,7 +173,7 @@ vl_cosmetics.register_cosmetic("Sparkleh", {
   },
   texture_animation = {
     index = 2, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })
@@ -185,7 +185,7 @@ vl_cosmetics.register_cosmetic("Sparkleb", {
   },
   texture_animation = {
     index = 2, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })
@@ -197,7 +197,7 @@ vl_cosmetics.register_cosmetic("Sparklear", {
   },
   texture_animation = {
     index = 1, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })
@@ -209,7 +209,7 @@ vl_cosmetics.register_cosmetic("Sparkleal", {
   },
   texture_animation = {
     index = 1, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })
@@ -221,7 +221,7 @@ vl_cosmetics.register_cosmetic("Sparklelr", {
   },
   texture_animation = {
     index = 1, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })
@@ -233,7 +233,7 @@ vl_cosmetics.register_cosmetic("Sparklell", {
   },
   texture_animation = {
     index = 1, -- texture index
-    delay = 0.2, -- how long each frame is displayed
+    delay = 0.1, -- how long each frame is displayed
     frame_count = 5, -- vertical frame count
   }
 })

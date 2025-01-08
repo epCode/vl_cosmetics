@@ -62,6 +62,7 @@ function vl_cosmetics.register_cosmetic(name, def)
     pointable = false,
     do_not_list = def.do_not_list,
     usename = def.usename,
+    use_texture_alpha = true,
     texture_modifiers = "",
     value_slider = def.value_slider,
     _on_step = def.on_step,
@@ -115,6 +116,7 @@ function vl_cosmetics.register_cosmetic(name, def)
       core.after(0.05, function()
         if self and self.object:get_pos() and not self.object:get_attach() then
           self.object:remove()
+          return
         else
           if self.value_slider then
             local textures = {}
